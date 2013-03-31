@@ -7,6 +7,7 @@ var user = new player(200, 200, 25, 25, 10,5,1);
 var enemies;
 var objects;
 var attacks;
+var defenses;
 var direction; // 0 = Left, 1 = Right 2
 var moving; //0 = Left, 1 = Right, 2 = Up, 3 = Down
 
@@ -16,17 +17,26 @@ var moving; //0 = Left, 1 = Right, 2 = Up, 3 = Down
   enemies = [];
   objects = [];
   attacks = [];
+  defenses = [];
   direction = 0;
   
-  draw();
-  setInterval("draw()", 1000/60); 
+  gameloop();
+  setInterval("gameloop()", 1000/60); 
 //}
-var enemy = new enemy(200,250,25,25,10,5,0);
-enemies.push(enemy);
+var enem = new enemy(200,250,25,25,10,5,0);
+enemies.push(enem);
 
 //Painter and game loop
-function draw() {
-	context.fillStyle = "#000000";
+function gameloop() {
+	drawUser();
+  drawAttacks();
+  drawEnemies();  
+  drawObjects();
+}
+
+//Drawing Methods
+function drawUser() {
+  context.fillStyle = "#000000";
   context.clearRect(0, 0, canvas.width, canvas.height);
   if (user.health >= 0) {
     collision(user); 
@@ -44,12 +54,8 @@ function draw() {
 	    context.fillRect(user.x-15, user.y-10, (11*user.health), 5);
     }
   }
-  context.fillStyle = "#000000";
-	for (var i = 0; i < attacks.length; i++) {
-		context.fillRect(attacks[i].x, attacks[i].y, attacks[i].width, attacks[i].height);
-		attacks[i].frames -= 1;
-		if (attacks[i].frames == 0) {attacks.length = 0;}
-	}  
+}
+function drawEnemies() {
 	for (var i = 0; i < enemies.length; i++) {
     if (enemies[i].health >= 0) {
       collision(enemies[i]);
@@ -70,8 +76,18 @@ function draw() {
         }
       }
     }
-	} 
-	for (var i = 0; i < objects.length; i++) {
+	}
+}
+function drawAttacks() {
+  context.fillStyle = "#000000";
+	for (var i = 0; i < attacks.length; i++) {
+		context.fillRect(attacks[i].x, attacks[i].y, attacks[i].width, attacks[i].height);
+		attacks[i].frames -= 1;
+		if (attacks[i].frames == 0) {attacks.length = 0;}
+	}
+}
+function drawObjects() {
+  for (var i = 0; i < objects.length; i++) {
 		context.fillRect(objects[i].x, objects[i].y, objects[i].width, objects[i].height);
 	}
 }
@@ -86,13 +102,11 @@ function player(x, y,width,height, dx, health,s) {
   this.health = health;
   this.side = s;
 }
-function object(x,y,width,height,f,s) {
+function object(x,y,width,height) {
 	this.x = x;
 	this.y = y;
 	this.width = width;
 	this.height = height;
-	this.frames = f;
-  this.side = s;
 }
 function enemy(x,y,width,height,dx,health,s) {
     this.x = x;
@@ -102,6 +116,23 @@ function enemy(x,y,width,height,dx,health,s) {
     this.dx = dx;
     this.health = health;
     this.side = s;
+}
+function attack(x,y,width,height,frame,side) {
+	this.x = x;
+	this.y = y;
+	this.width = width;
+	this.height = height;
+	this.frames = frame;
+  this.side = side;
+}
+function defense(x,y,width,height,frame,side,blocking) {
+  this.x = x;
+  this.y = y;
+  this.width = width;
+  this.height = height;
+  this.frame = frame;
+  this.side = side;
+  this.blocking = blocking;
 }
 
 //Player methods
@@ -125,20 +156,27 @@ user.moveLeft = function() {
 }
 user.attack = function(length,frames) { //Attack needs to disappear
   if(direction == 0){
-    var attack = new object(this.x - length, this.y, length, this.height, frames); 
+    var slice = new attack(this.x - length, this.y, length, this.height, frames, this.side);
   }
   else {
-	  var attack = new object(this.x + this.width, this.y, length, this.height, frames);
+	  var slice = new attack(this.x + this.width, this.y, length, this.height, frames, this.side);
  }
-	attacks.push(attack);
+	attacks.push(slice);
 }
 
+//Collision Detection
 function collision(object) {
   var left1 = object.x;
   var right1 = object.x + object.width;
   var top1 = object.y;
   var bottom1 = object.y+object.height;
 
+  checkObjects(object, left1, right1, top1, bottom1);
+  checkAttacks(object, left1, right1, top1, bottom1);
+}
+
+//Collision Checking Methods
+function checkObjects(object, left1, right1, top1, bottom1) {
   for (var i = 0; i < objects.length; i++) {
     var left2 = objects[i].x;
     var right2 = objects[i].x + objects[i].width;
@@ -164,6 +202,8 @@ function collision(object) {
       object.y = objects[i].y - object.height;
     }
   }
+}
+function checkAttacks(object, left1, right1, top1, bottom1) {
   for (var i = 0; i < attacks.length; i++) {
     if (object.side == attacks[i].side) {continue;}
     var left2 = attacks[i].x;
@@ -179,25 +219,26 @@ function collision(object) {
 
     object.health -= 1;
   }
-
 }
-
 
 //Keylistner
 document.addEventListener('keydown', function(event) {
-	if (event.keyCode == 37) {
+	if (event.keyCode == 37) { //Left Arrow
 		user.moveLeft();
 	}
-	if (event.keyCode == 39) {
+	if (event.keyCode == 39) { //Right Arrow
 		user.moveRight();
 	}
-  if (event.keyCode == 38) {
+  if (event.keyCode == 38) { //Up Arrow
 		user.moveUp();
 	}
-	if (event.keyCode == 40) {
+	if (event.keyCode == 40) { //Down Arrow
 		user.moveDown();
 	}
-	if (event.keyCode == 32) {
+	if (event.keyCode == 32) { //Spacebar
 		user.attack(15, 3);	
 	}
+  if (event.keyCode == 67) { //C
+    user.attack(15,1);
+  }   
 });
