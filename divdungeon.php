@@ -10,7 +10,9 @@
 	<br>
 	<div id="body">
 		<form name="input" action="play" onsubmit="return process();" method="get">
+			<div id="error">Invalid URL</div>
 			Dungeon (url): <input type="text" id="url" name="URL">
+			Facebook Integration: <input type="checkbox" id="facebookCheckbox" checked="true"/>
 			<input type="submit" id="loginBtn"/>
 			<input type="hidden" id="userID" name="UserID"/>
 		</form>
@@ -39,11 +41,37 @@
 			color: white;
 			text-shadow: -0.5px 0 black, 0 0.5px black, 0.5px 0 black, 0 -0.5px black;
 		}
+		#error {
+			color: rgba(255, 0, 0, 1);
+			background-color: rgba(192, 192, 192, .4);	
+			visibility: hidden;
+			text-align: center;
+			padding-top: 4px;
+			padding-bottom: 4px;
+		}
 		#loginBtn {
 			left: 50%;
-			width: 60px;
-			margin-left: 120px;
+			width: 100px;
+			margin-left: 100px;
 			margin-top:20px;
+			text-align:center;
+			border:1px solid #7c5b2b; -webkit-border-radius: 3px; -moz-border-radius: 3px;border-radius: 3px;font-family:arial, helvetica, sans-serif; padding: 10px 10px 10px 10px; text-shadow: -1px -1px 0 rgba(0,0,0,0.3);font-weight:bold; text-align: center; color: #FFFFFF; background-color: #a67939;
+			background-image: -webkit-gradient(linear, left top, left bottom, from(#a67939), to(#845108));
+			background-image: -webkit-linear-gradient(top, #a67939, #845108);
+			background-image: -moz-linear-gradient(top, #a67939, #845108);
+			background-image: -ms-linear-gradient(top, #a67939, #845108);
+			background-image: -o-linear-gradient(top, #a67939, #845108);
+			background-image: linear-gradient(to bottom, #a67939, #845108);filter:progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr=#a67939, endColorstr=#845108);
+		}
+
+		#loginBtn:hover {
+			border:1px solid #5a421f; background-color: #805d2c;
+			background-image: -webkit-gradient(linear, left top, left bottom, from(#805d2c), top(#543305));
+			background-image: -webkit-linear-gradient(top, #805d2c, #543305);
+			background-image: -moz-linear-gradient(top, #805d2c, #543305);
+			background-image: -ms-linear-gradient(top, #805d2c, #543305);
+			background-image: -o-linear-gradient(top, #805d2c, #543305);
+			background-image: linear-gradient(to bottom, #805d2c, #543305);filter:progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr=#805d2c, endColorstr=#543305);
 		}
 	</style>
 	<script>
@@ -78,9 +106,17 @@
 	  			'(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
 				'(\\#[-a-z\\d_]*)?$','i'); // fragment locator
 			if (pattern.test(url)) {
-				loginAndLoadImage();
+				if (document.getElementById("facebookCheckbox").checked == true) {
+					loginAndLoadImage();
+				} else {
+					document.getElementById("userID").value = "";
+					document.input.submit();
+				}
+			} else {
+				document.getElementById("error").style.visibility = 	"visible";
+				return false;
 			}
-			return false;
+
 		}
 		
 		window.fbAsyncInit = function() {
