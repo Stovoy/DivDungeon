@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html>
     <body>
-        <div style="bottom: 0;left: 0;position: fixed;right: 0;top: 0;background-color: rgba(1, 1, 1, 0.0);"></div>
+	 <div id="gg" style="visibility:hidden; text-align: center; font-size:xx-large">
+		Game Over!
+	 </div>
+        <div id="blocker" style="bottom: 0;left: 0;position: fixed;right: 0;top: 0;background-color: rgba(1, 1, 1, 0.0);"></div>
 		<div id="playerChar" style="position:absolute; width:117px; height:112px;">
 			<img src="images/standing1.png" style="width:115px; height:110px;"/>
 			<img id="image" style="height:50px; width:50px; z-index:2; position:absolute; left: 12%;top: 12.5%;"/>
