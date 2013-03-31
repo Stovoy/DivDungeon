@@ -1,8 +1,8 @@
-//Creats canvas and content holder
+//////Creats canvas and content holder
 var canvas;
 var context;
 //Creates instance of player
-var user = new player(200, 200, 25, 25, 10,5,1);
+var user = new player(200, 200, 25, 25, 10,50,1);
 //Arrays that hold objects
 var enemies;
 var objects;
@@ -45,15 +45,15 @@ function drawUser() {
  	  context.fillRect(user.x, user.y, user.width, user.height);
     if (user.health >= 4) {
       context.fillStyle = "#00FF00";
-	    context.fillRect(user.x, user.y - 10, (10*user.health), 5);  
+	    context.fillRect(user.x, user.y - 10, (1*user.health), 5);  
     }
     else if (user.health >= 2) {
       context.fillStyle = "#FFFF00";
-	    context.fillRect(user.x, user.y - 10, (10*user.health), 5);
+	    context.fillRect(user.x, user.y - 10, (1*user.health), 5);
     }
     else {
       context.fillStyle = "#FF0000";
-	    context.fillRect(user.x, user.y - 10, (10*user.health), 5);
+	    context.fillRect(user.x, user.y - 10, (1*user.health), 5);
     }
   }
 }
@@ -116,10 +116,28 @@ function enemytracker(enemy) {
   enemy.dy = Math.sin(angle);
 }
 function enemymover(enemy) {
-   for (var i = 0; i < enemies.length; i++) {
-    enemies[i].x += enemies[i].dx;
-    enemies[i].y += enemies[i].dy; 
+  for (var i = 0; i < enemies.length; i++) {
+    if ( ( (enemies[i].x >= user.x+user.width && enemies[i].x <= user.x+user.width+15) ||
+         (enemies[i].x + enemies[i].width >= user.x - 15 && enemies[i].x + enemies[i].width <= user.x) ) && 
+       ( !(enemies[i].y + enemies[i].height <= user. y) || !(enemies[i].y >= user.y + user.height) ) ){
+        
+        setInterval(function () {enemyattack(enemies[i],7,2);}, 3000);
+    }
+    else {   
+      enemies[i].x += enemies[i].dx;
+      enemies[i].y += enemies[i].dy; 
+    }
   } 
+}
+function enemyattack(enemy, length, frames) {
+  if (user.x <= enemy.x){
+    var slice = new attack(enemy.x - length, enemy.y, length, enemy.height, frames, enemy.side);
+     attacks.push(slice);
+  }
+  else {
+	  var slice = new attack(enemy.x + enemy.width, enemy.y, length, enemy.height, frames, enemy.side);
+    attacks.push(slice);
+  }
 }
 
 //Constructors
