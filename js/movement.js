@@ -32,6 +32,7 @@ function gameloop() {
   drawAttacks();
   drawEnemies();  
   drawObjects();
+  drawShields();
 }
 
 //Drawing Methods
@@ -79,7 +80,7 @@ function drawEnemies() {
 	}
 }
 function drawAttacks() {
-  context.fillStyle = "#000000";
+  context.fillStyle = "#FF0000";
 	for (var i = 0; i < attacks.length; i++) {
 		context.fillRect(attacks[i].x, attacks[i].y, attacks[i].width, attacks[i].height);
 		attacks[i].frames -= 1;
@@ -89,6 +90,14 @@ function drawAttacks() {
 function drawObjects() {
   for (var i = 0; i < objects.length; i++) {
 		context.fillRect(objects[i].x, objects[i].y, objects[i].width, objects[i].height);
+	}
+}
+function drawShields() {
+  context.fillStyle = "#0000FF";
+	for (var i = 0; i < defenses.length; i++) {
+		context.fillRect(defenses[i].x, defenses[i].y, defenses[i].width, defenses[i].height);
+		defenses[i].frames -= 1;
+		if (defenses[i].frames == 0) {defenses.length = 0;}
 	}
 }
 
@@ -155,13 +164,22 @@ user.moveLeft = function() {
   moving = 0;
 }
 user.attack = function(length,frames) { //Attack needs to disappear
-  if(direction == 0){
+  if (direction == 0){
     var slice = new attack(this.x - length, this.y, length, this.height, frames, this.side);
   }
   else {
 	  var slice = new attack(this.x + this.width, this.y, length, this.height, frames, this.side);
  }
 	attacks.push(slice);
+}
+user.defend = function(length, frames) { //Defends
+  if (direction == 0){
+    var shield = new attack(this.x - length, this.y, length, this.height, frames, this.side);
+  }
+  else {
+	  var shield = new attack(this.x + this.width, this.y, length, this.height, frames, this.side);
+ }
+	defenses.push(shield);
 }
 
 //Collision Detection
@@ -172,6 +190,7 @@ function collision(object) {
   var bottom1 = object.y+object.height;
 
   checkObjects(object, left1, right1, top1, bottom1);
+  attackcollision();
   checkAttacks(object, left1, right1, top1, bottom1);
 }
 
@@ -220,6 +239,39 @@ function checkAttacks(object, left1, right1, top1, bottom1) {
     object.health -= 1;
   }
 }
+function checkDefense(object, left1, right1, top1, bottom1) {
+  for (var i = 0; i < defenses.length; i++) {
+    if (object.side == defenses[i].side) {continue;}
+    var left2 = defenses[i].x;
+    var right2 = defenses[i].x + defenses[i].width;
+    var top2 = defenses[i].y;
+    var bottom2 = defenses[i].y + defenses[i].height;
+
+	  if (left1 >= right2) {continue;}
+    if (right1 <= left2) {continue;}
+      
+    if (bottom1 <= top2) {continue;}
+    if (top1 >= bottom2) {continue;}
+
+    if (object.side == 0) {
+      object.side = 1;
+    }
+    else if (object.side == 1) {
+      object.side =0;
+    }
+  }
+}
+function attackcollision() {
+  for (var i = 0; i < attacks.length; i++) {
+    var left1 = attacks[i].x;
+    var right1 = attacks[i].x + attacks[i].width;
+    var top1 = attacks[i].y;
+    var bottom1 = attacks[i].y + attacks[i].height;
+
+    checkDefense(attacks[i], left1, right1, top1, bottom1);
+  }
+}
+
 
 //Keylistner
 document.addEventListener('keydown', function(event) {
@@ -239,6 +291,6 @@ document.addEventListener('keydown', function(event) {
 		user.attack(15, 3);	
 	}
   if (event.keyCode == 67) { //C
-    user.attack(15,1);
+    user.defend(15,2);
   }   
 });
