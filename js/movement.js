@@ -23,37 +23,37 @@ var walkingIndex = 0;
   
   gameloop();
   setInterval("gameloop()", 1000/60); 
+  setInterval("enemyspawner()",1000*5);
 //}
-var enem = new enemy(200,250,25,25,10,5,0);
-enemies.push(enem);
 
 //Painter and game loop
 function gameloop() {
+  context.clearRect(0, 0, canvas.width, canvas.height);
 	drawUser();
   drawAttacks();
   drawEnemies();  
   drawObjects();
   drawShields();
+  enemymover();
 }
 
 //Drawing Methods
 function drawUser() {
   context.fillStyle = "#000000";
-  context.clearRect(0, 0, canvas.width, canvas.height);
   if (user.health >= 0) {
     collision(user); 
  	  context.fillRect(user.x, user.y, user.width, user.height);
     if (user.health >= 4) {
       context.fillStyle = "#00FF00";
-	    context.fillRect(user.x-15, user.y-10, (11*user.health), 5);  
+	    context.fillRect(user.x, user.y - 10, (10*user.health), 5);  
     }
     else if (user.health >= 2) {
       context.fillStyle = "#FFFF00";
-	    context.fillRect(user.x-15, user.y-10, (11*user.health), 5);
+	    context.fillRect(user.x, user.y - 10, (10*user.health), 5);
     }
     else {
       context.fillStyle = "#FF0000";
-	    context.fillRect(user.x-15, user.y-10, (11*user.health), 5);
+	    context.fillRect(user.x, user.y - 10, (10*user.health), 5);
     }
   }
 }
@@ -66,15 +66,15 @@ function drawEnemies() {
       if (enemies[i].health >= 0) { 
         if (enemies[i].health >= 4) {
           context.fillStyle = "#00FF00";
-	        context.fillRect(enemies[i].x-15, enemies[i].y-10, (11*enemies[i].health), 5);  
+	        context.fillRect(enemies[i].x, enemies[i].y - 10, (10*enemies[i].health), 5);  
         }
         else if (enemies[i].health >= 2) {
         context.fillStyle = "#FFFF00";
-	      context.fillRect(enemies[i].x-15, enemies[i].y-10, (11*enemies[i].health), 5);
+	      context.fillRect(enemies[i].x, enemies[i].y -10, (10*enemies[i].health), 5);
         }
         else {
         context.fillStyle = "#FF0000";
-	      context.fillRect(enemies[i].x-15, enemies[i].y-10, (11*enemies[i].health), 5);
+	      context.fillRect(enemies[i].x, enemies[i].y-10, (10*enemies[i].health), 5);
         }
       }
     }
@@ -102,6 +102,26 @@ function drawShields() {
 	}
 }
 
+//Enemy methods
+function enemyspawner() {
+  var randx = Math.floor((Math.random()*450)+1);    
+  var randy = Math.floor((Math.random()*450)+1);
+  var enem = new enemy(randx,randy,50,50,0,0,5,0);
+  enemytracker(enem);
+  enemies.push(enem);
+}
+function enemytracker(enemy) {
+  var angle = Math.atan2((user.y-enemy.y),(user.x-enemy.x));
+  enemy.dx = Math.cos(angle);
+  enemy.dy = Math.sin(angle);
+}
+function enemymover(enemy) {
+   for (var i = 0; i < enemies.length; i++) {
+    enemies[i].x += enemies[i].dx;
+    enemies[i].y += enemies[i].dy; 
+  } 
+}
+
 //Constructors
 function player(x, y,width,height, dx, health,side) {
 	this.x = x;
@@ -118,12 +138,13 @@ function object(x,y,width,height) {
 	this.width = width;
 	this.height = height;
 }
-function enemy(x,y,width,height,dx,health,side) {
+function enemy(x,y,width,height,dx,dy,health,side) {
     this.x = x;
     this.y = y;
     this.height = height;
     this.width = width;
     this.dx = dx;
+    this.dy = dy
     this.health = health;
     this.side = side;
 }
@@ -149,22 +170,34 @@ function defense(x,y,width,height,frame,side,blocking) {
 user.moveUp = function() {
 	this.y -= this.dx;
   moving = 2;
+   for (var i = 0; i < enemies.length; i++) {
+      enemytracker(enemies[i]);
+  }  
 }
 user.moveDown = function() {
 	this.y += this.dx;
   moving = 3;
+  for (var i = 0; i < enemies.length; i++) {
+      enemytracker(enemies[i]);
+  }
 }
 user.moveRight = function() {
 	this.x += this.dx;
   direction = 1;
   //horizontalMove("right");
   moving = 1;
+  for (var i = 0; i < enemies.length; i++) {
+      enemytracker(enemies[i]);
+  }
 }
 user.moveLeft = function() {
 	this.x -= this.dx;
   direction = 0;
   //horizontalMove("left");
   moving = 0;
+  for (var i = 0; i < enemies.length; i++) {
+      enemytracker(enemies[i]);
+  }
 }
 user.attack = function(length,frames) { //Attack needs to disappear
   if (direction == 0){
