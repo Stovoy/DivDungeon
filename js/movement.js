@@ -13,7 +13,7 @@ var moving; //0 = Left, 1 = Right, 2 = Up, 3 = Down
 var walkingIndex = 0;
 
 //function init() {
-  canvas = document.getElementById("myCanvas");
+  canvas = document.getElementById("divDungeonCanvas");
   context = canvas.getContext("2d");
   enemies = [];
   objects = [];
