@@ -1,19 +1,24 @@
-var canvas = document.getElementById("myCanvas");
-var context = canvas.getContext("2d");
+var canvas;
+var context;
 var user = new player(100, 100, 25, 25, 10);
-var enemies = [];
-var objects = [];
-var attacks = [];
+var enemies;
+var objects;
+var attacks;
+	
+function init() {
+	canvas = document.getElementById("divDungeonCanvas");
+	context = canvas.getContext("2d");
+	enemies = [];
+	objects = [];
+	attacks = [];
 
-var wall = new object(100, 0, 2, 500);
-objects.push(wall);
-
-context.fillStyle = "#000000";
-draw();
-setInterval("draw()", 1000/60);
+	context.fillStyle = "#000000";
+	draw();
+	setInterval("draw()", 1000/60);
+}
 
 function draw() {
-	context.clearRect(0, 0, c.width, c.height);
+	context.clearRect(0, 0, canvas.width, canvas.height);
 	context.fillRect(user.x, user.y, user.width, user.height);
 	for (var i = 0; i < attacks.length; i++) {
 		context.fillRect(attacks[i].x, attacks[i].y, attacks[i].width, attacks[i].height);
@@ -43,6 +48,7 @@ function object(x,y,width,height,f) {
 	this.height = height;
 	this.frames = f;
 }
+
 function enemy() {
     
 }
