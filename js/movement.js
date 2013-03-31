@@ -23,7 +23,7 @@ var walkingIndex = 0;
   
   gameloop();
   setInterval("gameloop()", 1000/60); 
-  setInterval("enemyspawner()",1000*5);
+  setInterval("enemyspawner()",2500);
 //}
 
 //Painter and game loop
@@ -112,8 +112,8 @@ function enemyspawner() {
 }
 function enemytracker(enemy) {
   var angle = Math.atan2((user.y-enemy.y),(user.x-enemy.x));
-  enemy.dx = Math.cos(angle);
-  enemy.dy = Math.sin(angle);
+  enemy.dx = Math.cos(angle)/2;
+  enemy.dy = Math.sin(angle)/2;
 }
 function enemymover(enemy) {
   for (var i = 0; i < enemies.length; i++) {
@@ -121,7 +121,7 @@ function enemymover(enemy) {
          (enemies[i].x + enemies[i].width >= user.x - 15 && enemies[i].x + enemies[i].width <= user.x) ) && 
        ( !(enemies[i].y + enemies[i].height <= user. y) || !(enemies[i].y >= user.y + user.height) ) ){
         
-        setInterval(function () {enemyattack(enemies[i],7,2);}, 3000);
+        setInterval(function () {enemyattack(enemies[i],7,1);}, 5000);
     }
     else {   
       enemies[i].x += enemies[i].dx;
@@ -130,13 +130,15 @@ function enemymover(enemy) {
   } 
 }
 function enemyattack(enemy, length, frames) {
-  if (user.x <= enemy.x){
-    var slice = new attack(enemy.x - length, enemy.y, length, enemy.height, frames, enemy.side);
+  if (enemy.health >= 0){  
+    if (user.x <= enemy.x){
+      var slice = new attack(enemy.x - length, enemy.y, length, enemy.height, frames, enemy.side);
      attacks.push(slice);
-  }
-  else {
-	  var slice = new attack(enemy.x + enemy.width, enemy.y, length, enemy.height, frames, enemy.side);
-    attacks.push(slice);
+     }
+    else {
+	    var slice = new attack(enemy.x + enemy.width, enemy.y, length, enemy.height, frames, enemy.side);
+      attacks.push(slice);
+    }
   }
 }
 
@@ -402,6 +404,6 @@ document.addEventListener('keydown', function(event) {
 		user.attack(15, 3);	
 	}
   if (event.keyCode == 67) { //C
-    user.defend(15,2);
+    user.defend(17,2);
   }   
 });
