@@ -2,7 +2,7 @@
 var canvas;
 var context;
 //Creates instance of player
-var user = new player(100, 100, 25, 25, 10,5);
+var user = new player(200, 200, 25, 25, 10,5,1);
 //Arrays that hold objects
 var enemies;
 var objects;
@@ -21,29 +21,27 @@ var moving; //0 = Left, 1 = Right, 2 = Up, 3 = Down
   draw();
   setInterval("draw()", 1000/60); 
 //}
-
-var wall = new object(100,0,15,500,0);
-objects.push(wall);
-
+var enemy = new enemy(200,250,25,25,10,5,0);
+enemies.push(enemy);
 
 //Painter and game loop
 function draw() {
 	context.fillStyle = "#000000";
   context.clearRect(0, 0, canvas.width, canvas.height);
-  if (user != null) {
-    if (user.health < 0) {user = null;}// Kills player with no health
+  if (user.health >= 0) {
+    collision(user); 
  	  context.fillRect(user.x, user.y, user.width, user.height);
     if (user.health >= 4) {
       context.fillStyle = "#00FF00";
-	    context.fillRect(user.x-15, user.y-10, (16*user.health), 5);  
+	    context.fillRect(user.x-15, user.y-10, (11*user.health), 5);  
     }
     else if (user.health >= 2) {
       context.fillStyle = "#FFFF00";
-	    context.fillRect(user.x-15, user.y-10, (16*user.health), 5);
+	    context.fillRect(user.x-15, user.y-10, (11*user.health), 5);
     }
     else {
       context.fillStyle = "#FF0000";
-	    context.fillRect(user.x-15, user.y-10, (16*user.health), 5);
+	    context.fillRect(user.x-15, user.y-10, (11*user.health), 5);
     }
   }
   context.fillStyle = "#000000";
@@ -53,32 +51,57 @@ function draw() {
 		if (attacks[i].frames == 0) {attacks.length = 0;}
 	}  
 	for (var i = 0; i < enemies.length; i++) {
-		context.fillRect(enemies[i].x, enemies[i].y, enemies[i].width, enemies[i].height);
-	}  
+    if (enemies[i].health >= 0) {
+      collision(enemies[i]);
+      context.fillStyle = "#00FF00";
+		  context.fillRect(enemies[i].x, enemies[i].y, enemies[i].width, enemies[i].height);
+      if (enemies[i].health >= 0) { 
+        if (enemies[i].health >= 4) {
+          context.fillStyle = "#00FF00";
+	        context.fillRect(enemies[i].x-15, enemies[i].y-10, (11*enemies[i].health), 5);  
+        }
+        else if (enemies[i].health >= 2) {
+        context.fillStyle = "#FFFF00";
+	      context.fillRect(enemies[i].x-15, enemies[i].y-10, (11*enemies[i].health), 5);
+        }
+        else {
+        context.fillStyle = "#FF0000";
+	      context.fillRect(enemies[i].x-15, enemies[i].y-10, (11*enemies[i].health), 5);
+        }
+      }
+    }
+	} 
 	for (var i = 0; i < objects.length; i++) {
 		context.fillRect(objects[i].x, objects[i].y, objects[i].width, objects[i].height);
 	}
-  collision(user);
 }
 
 //Constructors
-function player(x, y,width,height, dx, health) {
+function player(x, y,width,height, dx, health,s) {
 	this.x = x;
 	this.y = y;
 	this.height = height;
 	this.width = width;
 	this.dx = dx;
   this.health = health;
+  this.side = s;
 }
-function object(x,y,width,height,f) {
+function object(x,y,width,height,f,s) {
 	this.x = x;
 	this.y = y;
 	this.width = width;
 	this.height = height;
 	this.frames = f;
+  this.side = s;
 }
-function enemy() {
-    
+function enemy(x,y,width,height,dx,health,s) {
+    this.x = x;
+    this.y = y;
+    this.height = height;
+    this.width = width;
+    this.dx = dx;
+    this.health = health;
+    this.side = s;
 }
 
 //Player methods
@@ -108,7 +131,6 @@ user.attack = function(length,frames) { //Attack needs to disappear
 	  var attack = new object(this.x + this.width, this.y, length, this.height, frames);
  }
 	attacks.push(attack);
-  this.health -= 1;
 }
 
 function collision(object) {
@@ -123,11 +145,11 @@ function collision(object) {
     var top2 = objects[i].y;
     var bottom2 = objects[i].y+objects[i].height;
 
-	  if (left1 > right2) {continue;}
-    if (right1 < left2) {continue;}
+	  if (left1 >= right2) {continue;}
+    if (right1 <= left2) {continue;}
       
-    if (bottom1 > top2) {continue;}
-    if (top1 < bottom2) {continue;}
+    if (bottom1 <= top2) {continue;}
+    if (top1 >= bottom2) {continue;}
 
     if (moving == 0) {
       object.x = objects[i].x + objects[i].width;
@@ -142,6 +164,22 @@ function collision(object) {
       object.y = objects[i].y - object.height;
     }
   }
+  for (var i = 0; i < attacks.length; i++) {
+    if (object.side == attacks[i].side) {continue;}
+    var left2 = attacks[i].x;
+    var right2 = attacks[i].x + attacks[i].width;
+    var top2 = attacks[i].y;
+    var bottom2 = attacks[i].y + attacks[i].height;
+
+	  if (left1 >= right2) {continue;}
+    if (right1 <= left2) {continue;}
+      
+    if (bottom1 <= top2) {continue;}
+    if (top1 >= bottom2) {continue;}
+
+    object.health -= 1;
+  }
+
 }
 
 
