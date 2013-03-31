@@ -10,6 +10,7 @@ var attacks;
 var defenses;
 var direction; // 0 = Left, 1 = Right 2
 var moving; //0 = Left, 1 = Right, 2 = Up, 3 = Down
+var walkingIndex = 0;
 
 //function init() {
   canvas = document.getElementById("myCanvas");
@@ -102,14 +103,14 @@ function drawShields() {
 }
 
 //Constructors
-function player(x, y,width,height, dx, health,s) {
+function player(x, y,width,height, dx, health,side) {
 	this.x = x;
 	this.y = y;
 	this.height = height;
 	this.width = width;
 	this.dx = dx;
   this.health = health;
-  this.side = s;
+  this.side = side;
 }
 function object(x,y,width,height) {
 	this.x = x;
@@ -117,14 +118,14 @@ function object(x,y,width,height) {
 	this.width = width;
 	this.height = height;
 }
-function enemy(x,y,width,height,dx,health,s) {
+function enemy(x,y,width,height,dx,health,side) {
     this.x = x;
     this.y = y;
     this.height = height;
     this.width = width;
     this.dx = dx;
     this.health = health;
-    this.side = s;
+    this.side = side;
 }
 function attack(x,y,width,height,frame,side) {
 	this.x = x;
@@ -156,22 +157,81 @@ user.moveDown = function() {
 user.moveRight = function() {
 	this.x += this.dx;
   direction = 1;
+  //horizontalMove("right");
   moving = 1;
 }
 user.moveLeft = function() {
 	this.x -= this.dx;
   direction = 0;
+  //horizontalMove("left");
   moving = 0;
 }
 user.attack = function(length,frames) { //Attack needs to disappear
   if (direction == 0){
     var slice = new attack(this.x - length, this.y, length, this.height, frames, this.side);
+    //attackAnimation();
   }
   else {
 	  var slice = new attack(this.x + this.width, this.y, length, this.height, frames, this.side);
+    //attackAnimation();
  }
 	attacks.push(slice);
+  /*var t = setTimeout(function undoAttackAnimation() {
+     $("#playerChar")[0].children[0].src="images/standing1.png"; 
+     $("#playerChar")[0].children[1].style.left="6%";
+     $("#playerChar")[0].children[1].style.top="7%";
+     },,500);
+     //undoAttackAnimation(); 
+   }
+  */
 }
+/*
+function horizontalMove(direction) {
+    if (walkingIndex%2 == 0) {
+      $("#playerChar")[0].children[0].src="images/running1.png";
+    }
+    else {
+      S("#playerChar")[0].children[0].src="images/running2.png";
+    }
+
+    walkingIndex = walkingIndex + 1;
+    var leftPos = parseInt($("#playerChar")[0].style.left.indexOf("%")));
+    console.log(leftPos);
+
+    if (direction == "left") {
+      $("#playerChar")[0].style.left = leftPos-1+"%";
+      console.log(leftPos-1);
+    }
+    else if (direction == "right") {
+      $("#playerChar")[0].style.left = leftPos-1+"%";
+      console.log(leftPos+1);
+    }
+    $("#playerChar")[0].children[1].style.left="17%";
+    $("#playerChar")[0].children[1].style.top="17%;
+
+    //move to left
+}
+function attackAnimation() {
+    if ($("#playerChar")[0].src == "images/standing1.png") {
+      $("#playerChar")[0].children[0].src="images/attack1.png"
+      //wait
+      $("#playerChar")[0].children[0].src="images/attack2.png"
+      //wait
+`     $("#playerChar")[0].children[0].src="images/attack3.png"
+      $("#playerChar")[0].children[1].style.top="6%";
+    }
+    else {
+      $("#playerChar")[0].children[0].src="images/attack1.png"
+      //wait
+      $("#playerChar")[0].children[0].src="images/attack2.png"
+      //wait
+`     $("#playerChar")[0].children[0].src="images/attack3.png"
+      $("#playerChar")[0].children[1].style.left="5%";
+      $("#playerChar")[0].children[1].style.top="6%";   
+    }
+}
+*/
+
 user.defend = function(length, frames) { //Defends
   if (direction == 0){
     var shield = new attack(this.x - length, this.y, length, this.height, frames, this.side);
