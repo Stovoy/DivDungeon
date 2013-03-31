@@ -7,7 +7,8 @@ var user = new player(100, 100, 25, 25, 10,5);
 var enemies;
 var objects;
 var attacks;
-var direction; // 0 = Left, 1 = Right 
+var direction; // 0 = Left, 1 = Right 2
+var moving; //0 = Left, 1 = Right, 2 = Up, 3 = Down
 
 //function init() {
   canvas = document.getElementById("myCanvas");
@@ -20,6 +21,10 @@ var direction; // 0 = Left, 1 = Right
   draw();
   setInterval("draw()", 1000/60); 
 //}
+
+var wall = new object(100,0,15,500,0);
+objects.push(wall);
+
 
 //Painter and game loop
 function draw() {
@@ -53,6 +58,7 @@ function draw() {
 	for (var i = 0; i < objects.length; i++) {
 		context.fillRect(objects[i].x, objects[i].y, objects[i].width, objects[i].height);
 	}
+  collision(user);
 }
 
 //Constructors
@@ -78,17 +84,21 @@ function enemy() {
 //Player methods
 user.moveUp = function() {
 	this.y -= this.dx;
+  moving = 2;
 }
 user.moveDown = function() {
 	this.y += this.dx;
+  moving = 3;
 }
 user.moveRight = function() {
 	this.x += this.dx;
   direction = 1;
+  moving = 1;
 }
 user.moveLeft = function() {
 	this.x -= this.dx;
   direction = 0;
+  moving = 0;
 }
 user.attack = function(length,frames) { //Attack needs to disappear
   if(direction == 0){
@@ -100,8 +110,38 @@ user.attack = function(length,frames) { //Attack needs to disappear
 	attacks.push(attack);
   this.health -= 1;
 }
-user.collision = function() {
 
+function collision(object) {
+  var left1 = object.x;
+  var right1 = object.x + object.width;
+  var top1 = object.y;
+  var bottom1 = object.y+object.height;
+
+  for (var i = 0; i < objects.length; i++) {
+    var left2 = objects[i].x;
+    var right2 = objects[i].x + objects[i].width;
+    var top2 = objects[i].y;
+    var bottom2 = objects[i].y+objects[i].height;
+
+	  if (left1 > right2) {continue;}
+    if (right1 < left2) {continue;}
+      
+    if (bottom1 > top2) {continue;}
+    if (top1 < bottom2) {continue;}
+
+    if (moving == 0) {
+      object.x = objects[i].x + objects[i].width;
+    }
+    else if (moving == 1) {
+      object.x = objects[i].x - object.width;
+    }
+    else if (moving == 2) {
+      object.y = objects[i].y + objects[i].height;
+    }
+    else { 
+      object.y = objects[i].y - object.height;
+    }
+  }
 }
 
 
